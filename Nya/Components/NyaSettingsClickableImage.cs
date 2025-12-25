@@ -36,8 +36,8 @@ namespace Nya.Components
 
 			if (_basicUIAudioManagerAudioSource == null)
 			{
-				_basicUIAudioManagerAudioSource = BeatSaberUI.BasicUIAudioManager.GetComponent<AudioSource>();
-			}
+				_basicUIAudioManagerAudioSource = BeatSaberUI.BasicUIAudioManager.GetComponentInChildren<AudioSource>();
+            }
 		}
 		
 		public void OnPointerClick(PointerEventData eventData)
