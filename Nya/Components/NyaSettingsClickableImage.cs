@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using System.Threading;
-using BeatSaberMarkupLanguage;
+﻿using BeatSaberMarkupLanguage;
 using Nya.Configuration;
+using OculusStudios.Platform.Core;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Zenject;
@@ -12,18 +12,18 @@ namespace Nya.Components
 	{
 		private AudioClip[] _audioClips = new AudioClip[3];
 		private AudioSource _basicUIAudioManagerAudioSource = null!;
-		
-		private bool _isBogShamb;
+
+        private bool _isBogShamb;
 		private PluginConfig _pluginConfig = null!;
-		private IPlatformUserModel _platformUserModel = null!;
+		private IPlatform _platformUserModel = null!;
 
 		[Inject]
-		public async void Construct(PluginConfig pluginConfig, IPlatformUserModel platformUserModel)
+		public void Construct(PluginConfig pluginConfig, IPlatform platformUserModel)
 		{
-			_pluginConfig = pluginConfig;
+            _pluginConfig = pluginConfig;
 			_platformUserModel = platformUserModel;
-			
-			_isBogShamb = (await _platformUserModel.GetUserInfo(CancellationToken.None)).platformUserId == "76561198087340992";
+
+            _isBogShamb = _platformUserModel.user.userId.ToString() == "76561198087340992";
 		}
 
 		private void Awake()
@@ -41,7 +41,12 @@ namespace Nya.Components
 		
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			if (_pluginConfig.IsAprilFirst || (_isBogShamb && _pluginConfig.EasterEggs))
+			if (_basicUIAudioManagerAudioSource == null || _audioClips.Length < 3)
+			{
+				return;
+            }
+
+            if (_pluginConfig.IsAprilFirst || (_isBogShamb && _pluginConfig.EasterEggs))
 			{
 				_basicUIAudioManagerAudioSource.PlayOneShot(_audioClips[0]);
 			}
