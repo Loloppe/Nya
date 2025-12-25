@@ -2,6 +2,7 @@
 using Nya.Configuration;
 using OculusStudios.Platform.Core;
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Zenject;
@@ -26,11 +27,11 @@ namespace Nya.Components
             _isBogShamb = _platformUserModel.user.userId.ToString() == "76561198087340992";
 		}
 
-		private void Awake()
+		private async void Awake()
 		{
 			if (_audioClips[0] == null)
 			{
-				GetAudioClips();
+				await GetAudioClips();
 			}
 
 			if (_basicUIAudioManagerAudioSource == null)
@@ -41,11 +42,6 @@ namespace Nya.Components
 		
 		public void OnPointerClick(PointerEventData eventData)
 		{
-			if (_basicUIAudioManagerAudioSource == null || _audioClips.Length < 3)
-			{
-				return;
-            }
-
             if (_pluginConfig.IsAprilFirst || (_isBogShamb && _pluginConfig.EasterEggs))
 			{
 				_basicUIAudioManagerAudioSource.PlayOneShot(_audioClips[0]);
@@ -56,11 +52,12 @@ namespace Nya.Components
 			}
 		}
 
-		private void GetAudioClips()
+		private async Task<bool> GetAudioClips()
 		{
-			var loadedAssetBundle = AssetBundle.LoadFromMemory(Utilities.GetResource(Assembly.GetExecutingAssembly(), "Nya.Resources.nya.bundle"));
+			var loadedAssetBundle = AssetBundle.LoadFromMemory(await Utilities.GetResourceAsync(Assembly.GetExecutingAssembly(), "Nya.Resources.nya.bundle"));
 			_audioClips = loadedAssetBundle.LoadAllAssets<AudioClip>();
 			loadedAssetBundle.Unload(false);
-		}
+			return _audioClips.Length >= 3;
+        }
 	}
 }
